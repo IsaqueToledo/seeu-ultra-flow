@@ -677,7 +677,6 @@
         const tdObs = document.createElement("td"); 
         tdObs.className = "seeu-flow-col seeu-flow-obs";
         tr.appendChild(tdObs); 
-        // Agora passamos também o movimento e o "quem" para criar uma chave única
         preencherObs(tdObs, numero, mov, quem);
       }
 
@@ -796,7 +795,6 @@
     atualizarBotaoFiltroDef();
   }
 
-  // ATUALIZADO: Recebe movimento e quem para criar chave única
   async function preencherObs(td, numero, mov, quem) {
     const ta = document.createElement("textarea"); 
     ta.className = "sf-obs-input"; 
@@ -1319,42 +1317,91 @@
   }
 
   /* =========================================================
-     BOTÃO DE DOWNLOAD MANUAL NA TELA DO PROCESSO
+     BOTÕES DO CABEÇALHO (PDFs e e-SAJ)
      ========================================================= */
-  function injetarBotaoDownloadUnificado() {
+  function injetarBotoesCabecalho() {
       const cabecalho = document.getElementById("barraTituloStatusProcessual");
       if (!cabecalho) return; 
-      
-      if (document.getElementById("seeu-flow-pdfbtn")) return;
-
-      const btn = document.createElement("button");
-      btn.id = "seeu-flow-pdfbtn";
-      btn.innerHTML = "📥 Unificar PDFs do Processo";
-      btn.title = "Abre todos os '+', coleta os PDFs pendentes e gera um arquivo único.";
-      
-      btn.style.position = "static";
-      btn.style.margin = "0 0 0 15px"; 
-      
-      btn.onclick = (e) => {
-          e.preventDefault();
-          btn.innerHTML = "⏳ Processando...";
-          btn.style.backgroundColor = "#ca8a04"; 
-          btn.style.pointerEvents = "none";
-          
-          autoExpandirEBaixar().finally(() => {
-              setTimeout(() => {
-                  btn.innerHTML = "📥 Unificar PDFs do Processo";
-                  btn.style.backgroundColor = "#0f172a";
-                  btn.style.pointerEvents = "auto";
-              }, 3000);
-          });
-      };
 
       const infoContainer = document.getElementById("sf-info-congelada-container");
-      if (infoContainer) {
-          infoContainer.appendChild(btn);
-      } else {
-          cabecalho.appendChild(btn);
+      const containerAlvo = infoContainer || cabecalho;
+      
+      // 1. Botão Unificar PDFs
+      if (!document.getElementById("seeu-flow-pdfbtn")) {
+          const btnPdf = document.createElement("button");
+          btnPdf.id = "seeu-flow-pdfbtn";
+          btnPdf.innerHTML = "📥 Unificar PDFs do Processo";
+          btnPdf.title = "Abre todos os '+', coleta os PDFs pendentes e gera um arquivo único.";
+          
+          btnPdf.style.position = "static";
+          btnPdf.style.margin = "0 0 0 15px"; 
+          btnPdf.style.backgroundColor = "#0f172a";
+          btnPdf.style.color = "#fff";
+          btnPdf.style.border = "none";
+          btnPdf.style.borderRadius = "8px";
+          btnPdf.style.padding = "9px 14px";
+          btnPdf.style.font = "600 13px system-ui, sans-serif";
+          btnPdf.style.cursor = "pointer";
+          
+          btnPdf.onclick = (e) => {
+              e.preventDefault();
+              btnPdf.innerHTML = "⏳ Processando...";
+              btnPdf.style.backgroundColor = "#ca8a04"; 
+              btnPdf.style.pointerEvents = "none";
+              
+              autoExpandirEBaixar().finally(() => {
+                  setTimeout(() => {
+                      btnPdf.innerHTML = "📥 Unificar PDFs do Processo";
+                      btnPdf.style.backgroundColor = "#0f172a";
+                      btnPdf.style.pointerEvents = "auto";
+                  }, 3000);
+              });
+          };
+
+          containerAlvo.appendChild(btnPdf);
+      }
+
+      // 2. Botão Pesquisa e-SAJ
+      if (!document.getElementById("seeu-flow-esajbtn")) {
+          const btnSaj = document.createElement("button");
+          btnSaj.id = "seeu-flow-esajbtn";
+          btnSaj.innerHTML = "🔍 Pesquisa e-SAJ";
+          btnSaj.title = "Pesquisa o nome do sentenciado no TJSP (e-SAJ 1º Grau)";
+          
+          btnSaj.style.position = "static";
+          btnSaj.style.margin = "0 0 0 8px"; 
+          btnSaj.style.backgroundColor = "#0369a1"; // Azul diferente
+          btnSaj.style.color = "#fff";
+          btnSaj.style.border = "none";
+          btnSaj.style.borderRadius = "8px";
+          btnSaj.style.padding = "9px 14px";
+          btnSaj.style.font = "600 13px system-ui, sans-serif";
+          btnSaj.style.cursor = "pointer";
+          
+          btnSaj.onclick = (e) => {
+              e.preventDefault();
+              
+              // Extrai o texto visível da página
+              const text = document.body.innerText;
+              
+              // Tenta extrair da tela principal: "Sentenciado: NOME AQUI (RJI..."
+              let match = text.match(/Sentenciado:\s*([A-ZÀ-Úa-zà-ú\s]+?)\s*(?:\(|RJI|CPF)/i);
+              
+              // Se não achar, tenta extrair da tela de "Parte do Processo"
+              if (!match) {
+                  match = text.match(/Nome:\s*([A-ZÀ-Úa-zà-ú\s]+?)\s*(?:Copiar|Polo)/i);
+              }
+
+              if (match && match[1]) {
+                  const nomeStr = match[1].trim();
+                  const url = `https://esaj.tjsp.jus.br/cpopg/search.do?conversationId=&cbPesquisa=NMPARTE&chNmCompleto=true&cdForo=-1&dadosConsulta.valorConsulta=${encodeURIComponent(nomeStr)}`;
+                  window.open(url, '_blank'); // Abre em nova guia
+              } else {
+                  alert("SEEU Ultra Flow:\nNão foi possível localizar o nome do sentenciado automaticamente nesta tela.");
+              }
+          };
+
+          containerAlvo.appendChild(btnSaj);
       }
   }
 
@@ -1365,7 +1412,7 @@
       pendente = false;
       
       fixarCabecalhoProcesso();
-      injetarBotaoDownloadUnificado(); 
+      injetarBotoesCabecalho(); 
       interceptarRealizarRemessa();
 
       const tabela = acharTabela(); if (!tabela) return;
