@@ -1,0 +1,96 @@
+/* coluna injetada SEEU Flow */
+.seeu-flow-col { max-width: 240px; font-size: 12px; line-height: 1.3; color: #334155; vertical-align: top; border-left: 2px solid #f59e0b; padding: 4px 8px !important; white-space: normal; }
+th.seeu-flow-col { color: #92400e; font-weight: 600; }
+
+/* Banner de alertas no topo */
+#seeu-flow-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 2147483647; display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: #b45309; color: #fff; font: 600 13px/1.3 system-ui, sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+#seeu-flow-banner button { margin-left: auto; background: rgba(255,255,255,.18); color: #fff; border: 1px solid rgba(255,255,255,.4); border-radius: 6px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
+
+/* Toolbar de Processo / Painel flutuante / Botoes PDF... */
+#seeu-flow-toolbar { position: fixed; right: 16px; bottom: 16px; z-index: 2147483646; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: #0f172a; color: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.3); max-width: 220px; font: 12px/1.3 system-ui, sans-serif;}
+.sf-btn { width: 100%; text-align: left; background: #1e293b; color: #fff; border: 1px solid #334155; border-radius: 7px; padding: 7px 9px; font-size: 12px; cursor: pointer; }
+.sf-btn:hover { background: #334155; }
+#seeu-flow-toolbar .sf-msg { font-size: 11px; color: #fcd34d; }
+
+#seeu-flow-painel { position: fixed; right: 16px; bottom: 16px; z-index: 2147483647; width: 360px; max-height: 70vh; overflow: auto; background: #fff; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.28); padding: 14px 16px; font: 13px/1.45 system-ui, sans-serif; }
+#seeu-flow-painel pre { white-space: pre-wrap; word-break: break-word; font: 12px/1.5 ui-monospace, monospace; background: #f8fafc; padding: 8px; border-radius: 7px; }
+#seeu-flow-painel .sf-acoes { display: flex; gap: 8px; margin-top: 8px; }
+#seeu-flow-painel .sf-acoes .sf-btn { background: #0f172a; text-align: center; }
+
+.seeu-flow-pdf { border-left-color: #2563eb; }
+.seeu-flow-pdf::before { content: "\1F4C4 "; }
+#seeu-flow-pdfbtn { position: fixed; right: 16px; top: 16px; z-index: 2147483646; background: #0f172a; color: #fff; border: 0; border-radius: 8px; padding: 9px 14px; font: 600 13px system-ui, sans-serif; cursor: pointer; }
+@media print { #seeu-flow-banner, #seeu-flow-toolbar, #seeu-flow-pdfbtn, #seeu-flow-painel, #header-wraper, #BarraMenu { display: none !important; } }
+
+.seeu-flow-col .sf-cat { font-weight: 600; }
+.seeu-flow-col .sf-teor { font-weight: 400; color: #475569; font-size: 11px; margin-top: 2px; }
+.seeu-flow-pdf:hover { background: #eff6ff; }
+
+/* Barra central unificada da Fila */
+#seeu-flow-fila { position: fixed; left: 16px; bottom: 16px; z-index: 2147483646; display: block; padding: 0; max-width: 290px; background: #0f172a; color: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.4); font: 12px/1.3 system-ui, sans-serif; user-select: none; }
+#seeu-flow-fila .sf-fila-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid #1e293b; }
+#seeu-flow-fila .sf-fila-cab strong { font-size: 12px; opacity: .9; }
+#seeu-flow-fila .sf-fila-min { cursor: pointer; width: 20px; height: 20px; line-height: 18px; text-align: center; border: 1px solid #334155; border-radius: 6px; font-size: 14px; opacity: .9; }
+#seeu-flow-fila .sf-fila-min:hover { background: #334155; }
+#seeu-flow-fila .sf-fila-corpo { display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; }
+#seeu-flow-fila .sf-fila-row-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+#seeu-flow-fila .sf-btn { width: auto; background: #1e293b; border: 1px solid #334155; border-radius: 7px; color: #fff; padding: 6px 9px; font-size: 12px; cursor: pointer; }
+#seeu-flow-fila .sf-btn:hover { background: #334155; }
+#seeu-flow-fila .sf-msg { width: 100%; color: #fcd34d; font-size: 11px; }
+
+/* Estilo Agrupadores Unificado */
+.agr-col-header { background-color: #e0f2fe !important; color: #0369a1 !important; font-weight: bold; text-align: center; border-left: 2px solid #0369a1; }
+.agr-tag { display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 4px; padding: 4px 8px; font-weight: bold; font-size: 11px; white-space: normal; text-align: center;}
+.agr-vazio { color: #94a3b8; font-style: italic; }
+.agr-alerta-vazio { display: inline-block; background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; border-radius: 4px; padding: 4px 8px; font-weight: 500; font-size: 10px; text-align: center; line-height: 1.2;}
+
+select#seeu-agr-select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #475569; background: #1e293b; color: #f8fafc; font-size: 11.5px; outline: none; cursor: pointer; }
+select#seeu-agr-select:focus { border-color: #38bdf8; }
+
+.sf-agr-info { font-size: 12px; color: #a7f3d0; margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; }
+.sf-badge-coletando { background: #059669; color: white; padding: 3px 6px; border-radius: 4px; font-size: 10.5px; font-weight: bold; animation: pulse 1.5s infinite; white-space: nowrap; }
+.sf-badge-sucesso { background: #0284c7; color: white; padding: 3px 6px; border-radius: 4px; font-size: 10.5px; font-weight: bold; white-space: nowrap; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+/* Obss e Defesa */
+.seeu-flow-obs textarea.sf-obs-input { width: 160px; min-height: 38px; resize: vertical; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px; font: 12px/1.3 system-ui, sans-serif; color: #1e293b; background: #fffef5; }
+.seeu-flow-obs.sf-salvando textarea { border-color: #f59e0b; }
+th.seeu-flow-obs-h { color: #92400e; }
+.seeu-flow-defesa { font-weight: 600; text-align: center; }
+th.seeu-flow-defesa-h { color: #334155; }
+
+
+/* =========================================================
+   ESTILO DO CABEÇALHO CONGELADO E DATAS
+   ========================================================= */
+.sf-sticky-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2147483640 !important;
+  background-color: #fff3cd !important; 
+  padding: 12px 10px !important;
+  margin: -10px -10px 15px -10px !important;
+  border-bottom: 2px solid #fde047 !important; 
+  box-shadow: 0 8px 16px -4px rgba(0,0,0,0.2) !important; 
+  border-radius: 0 0 6px 6px;
+}
+
+/* Container das informações extraídas (Término, Progressão, Livramento) */
+.sf-info-congelada {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px dashed #ca8a04;
+}
+
+.sf-info-termino { color: #b91c1c; }
+.sf-info-progressao { color: #1d4ed8; }
+.sf-info-livramento { color: #15803d; }
+.sf-regime-target { color: #4338ca; font-size: 12px; font-weight: bold; background: #e0e7ff; padding: 2px 6px; border-radius: 4px; margin-left: 4px;}
+.sf-regime-loading { font-size: 11px; font-weight: normal; color: #78716c; font-style: italic; margin-left: 4px; }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root { color-scheme: light; }
+    body { width: 350px; margin: 0; padding: 14px 16px;
+      font: 13px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #1e293b; background: #fff; }
+    h1 { font-size: 15px; margin: 0 0 2px; }
+    .sub { color: #64748b; font-size: 11px; margin: 0 0 14px; }
+    label { display: block; font-weight: 600; font-size: 12px; margin: 12px 0 4px; }
+    textarea, input[type=password] { width: 100%; box-sizing: border-box; padding: 7px 9px;
+      border: 1px solid #cbd5e1; border-radius: 7px; font-size: 12px; font-family: inherit; }
+    textarea { resize: vertical; min-height: 56px; }
+    .row { display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+    .row input[type=checkbox] { width: 16px; height: 16px; }
+    .row label { margin: 0; font-weight: 500; }
+    button { margin-top: 6px; width: 100%; padding: 8px; border: 0; border-radius: 7px;
+      background: #0f172a; color: #fff; font-weight: 600; cursor: pointer; font-size: 12px; }
+    .warn { margin-top: 14px; padding: 9px 10px; border-radius: 8px; background: #fef3c7;
+      border: 1px solid #fcd34d; color: #78350f; font-size: 11px; }
+    .saved { color: #16a34a; font-size: 11px; min-height: 14px; display: block; margin-top: 6px; }
+    hr { border: 0; border-top: 1px solid #e2e8f0; margin: 16px 0 6px; }
+    .secao-titulo { font-weight: bold; color: #2563eb; font-size: 12px; margin-top: 10px; display: block;}
+  </style>
+</head>
+<body>
+  <h1>SEEU Ultra Flow</h1>
+  <p class="sub">Inteligência (Flow) + Localizadores + AutoDownloader</p>
+
+  <span class="secao-titulo">⚙️ Painel de Localizadores</span>
+  <div class="row"><input type="checkbox" id="btnLocalizadores" checked><label for="btnLocalizadores">Exibir botão flutuante "📍 Localizadores"</label></div>
+  
+  <hr>
+  <span class="secao-titulo">🧠 Funções Flow & Alertas</span>
+  <div class="row"><input type="checkbox" id="alertas" checked><label for="alertas">Alertas automáticos de Retorno de Conclusão</label></div>
+  <label for="retornoUrls">Link(s) da fila de Retorno de Conclusão (um por linha):</label>
+  <textarea id="retornoUrls" placeholder="https://seeu.pje.jus.br/seeu/visualizacaoFila.do?..."></textarea>
+
+  <div class="row"><input type="checkbox" id="coluna" checked><label for="coluna">Coluna "Resumo / Encaminhar"</label></div>
+  <div class="row"><input type="checkbox" id="obs" checked><label for="obs">Coluna de Observação (salva localmente)</label></div>
+  <div class="row"><input type="checkbox" id="defesaCapa" checked><label for="defesaCapa">Coluna "Defesa" (identifica Defensoria/Advogado)</label></div>
+  <div class="row"><input type="checkbox" id="agrupadores" checked><label for="agrupadores">Memória de Agrupadores (Minutas -> Juntadas)</label></div>
+  <div class="row"><input type="checkbox" id="lerPdf" checked><label for="lerPdf">Ler o PDF para classificar/resumir (IA local)</label></div>
+  
+  <hr>
+  <span class="secao-titulo">⚡ Automações de Tela</span>
+  <div class="row"><input type="checkbox" id="congelarPaineis" checked><label for="congelarPaineis">Fixar número do Processo no topo ao rolar a página</label></div>
+  <div class="row"><input type="checkbox" id="autoDownload" checked><label for="autoDownload">Auto-Download de PDFs (Fila: Pendentes)</label></div>
+  <div class="row"><input type="checkbox" id="autoOficio" checked><label for="autoOficio">Auto-Baixar Ofício (Fila: Juntadas -> Proc. Específico)</label></div>
+  
+  <button id="salvar" type="button">Salvar Configurações</button>
+  <span class="saved" id="flag"></span>
+
+  <script src="popup.js"></script>
+</body>
+</html>
