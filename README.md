@@ -33,3 +33,13 @@ Esta extensão roda **100% no seu navegador (Client-side)**. Nenhuma informaçã
 * Chrome Extensions API (Manifest V3)
 * Web Workers (Processamento Assíncrono)
 * `pdf.js` (Leitura) & `pdf-lib` (Manipulação)
+
+######################### ATUALIZAÇão 17/07/2026 #################################
+
+
+## 🆕 Novas Integrações (Pesquisas Automáticas)
+
+A extensão agora conecta o SEEU a plataformas de consulta externa, eliminando a necessidade de copiar e colar dados manualmente entre abas.
+
+- **🔍 Pesquisa e-SAJ Automática:** Um botão injetado no cabeçalho do processo extrai inteligentemente o nome do sentenciado da tela do SEEU e já abre a consulta de 1º Grau no **e-SAJ (TJSP)** preenchida e pesquisada.
+- **🚨 Integração DIPOL (Power Apps):** O botão "Pesquisa DIPOL" lê os dados do apenado (RG, Nome e Nome da Mãe), abre a interface do Microsoft Power Apps da DIPOL, quebra os bloqueios de segurança do sistema da Microsoft, preenche os campos automaticamente e realiza a consulta de antecedentes criminais em segundos.
