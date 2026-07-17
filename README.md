@@ -34,7 +34,10 @@ Esta extensão roda **100% no seu navegador (Client-side)**. Nenhuma informaçã
 * Web Workers (Processamento Assíncrono)
 * `pdf.js` (Leitura) & `pdf-lib` (Manipulação)
 
+
+
 ######################### ATUALIZAÇÃO 17/07/2026 #################################
+
 
 
 ## 🆕 Novas Integrações (Pesquisas Automáticas)
