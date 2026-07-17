@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "SEEU Ultra Flow",
-  "version": "16.4",
-  "description": "Flow + Localizadores + Agrupadores + Auto-Ofício + Congelar Painéis",
+  "version": "16.7",
+  "description": "Flow + Localizadores + Agrupadores + Auto-Ofício + Congelar Painéis + DIPOL",
   "permissions": [
     "storage", 
     "notifications", 
@@ -15,7 +15,7 @@
   ],
   "host_permissions": [
     "*://seeu.pje.jus.br/*",
-    "*://*.amazonaws.com/*"
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"
@@ -36,6 +36,12 @@
       "run_at": "document_idle",
       "all_frames": true,
       "match_about_blank": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-dipol.js"],
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ],
   "web_accessible_resources": [
