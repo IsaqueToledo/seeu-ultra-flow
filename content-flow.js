@@ -83,6 +83,25 @@
   }
 
   /* =========================================================
+     UTILIDADE: OBTER ID INTERNO DO PROCESSO
+     ========================================================= */
+  function obterIdProcessoSEEU() {
+      const htmlString = document.documentElement.innerHTML;
+      const matches = htmlString.match(/100\d{12}/g);
+      if (matches && matches.length > 0) {
+          const counts = {};
+          let maxId = matches[0];
+          let maxCount = 0;
+          for (let m of matches) {
+              counts[m] = (counts[m] || 0) + 1;
+              if (counts[m] > maxCount) { maxCount = counts[m]; maxId = m; }
+          }
+          return maxId;
+      }
+      return null;
+  }
+
+  /* =========================================================
      CAIXA DE CONFIRMAÇÃO DESTACADA
      ========================================================= */
   function mostrarConfirmacaoDestacada(onConfirm) {
@@ -1168,7 +1187,7 @@
   }
 
   /* =========================================================
-     CABEÇALHO CONGELADO (LEITOR NATIVO DE PDF ROBUSTO)
+     CABEÇALHO CONGELADO E DATAS
      ========================================================= */
   async function fixarCabecalhoProcesso() {
     if (cfg.congelarPaineis === false) return; 
@@ -1185,11 +1204,23 @@
                 top: 0 !important;
                 z-index: 2147483640 !important;
                 background-color: #fff3cd !important; 
-                padding: 12px 10px !important;
-                margin: -10px -10px 15px -10px !important;
+                padding: 2px 10px !important; 
+                margin: -15px -10px 8px -10px !important; 
                 border-bottom: 2px solid #fde047 !important; 
-                box-shadow: 0 8px 16px -4px rgba(0,0,0,0.2) !important; 
+                box-shadow: 0 4px 10px -4px rgba(0,0,0,0.15) !important; 
                 border-radius: 0 0 6px 6px;
+                min-height: 36px !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            /* Destrói qualquer margem nativa do SEEU que incha o cabeçalho */
+            .sf-sticky-header * {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            .sf-sticky-header > div:first-child {
+                padding-bottom: 0 !important;
+                line-height: 1.2 !important;
             }
         `;
         document.head.appendChild(style);
@@ -1214,49 +1245,17 @@
     cabecalho.style.alignItems = 'center';
     cabecalho.style.justifyContent = 'space-between';
 
-    const textoPagina = document.body.innerText;
-    
-    const terminoMatch = textoPagina.match(/T[EÉ]RMINO:\s*([\d]{2}\/[\d]{2}\/[\d]{4})/i);
-    const progressaoMatch = textoPagina.match(/PROGRESS[AÃ]O:\s*([\d]{2}\/[\d]{2}\/[\d]{4})/i);
-    const livramentoMatch = textoPagina.match(/LIVRAMENTO\s*CONDICIONAL:\s*([\d]{2}\/[\d]{2}\/[\d]{4})/i);
-
-    if (!terminoMatch && !progressaoMatch && !livramentoMatch) return;
-
-    const termino = terminoMatch ? terminoMatch[1] : '---';
-    const progressao = progressaoMatch ? progressaoMatch[1] : '---';
-    const livramento = livramentoMatch ? livramentoMatch[1] : '---';
-
     const infoContainer = document.createElement('div');
     infoContainer.id = "sf-info-congelada-container";
-    infoContainer.style.cssText = "font-size: 13px; font-weight: bold; background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 6px; border: 1px dashed #ca8a04; display: flex; gap: 15px; align-items: center;";
+    infoContainer.style.cssText = "font-size: 13px; background: transparent; padding: 0 8px; display: flex; gap: 10px; align-items: center;";
     
     infoContainer.innerHTML = `
         <span id="sf-txt-regime-atual" style="display: none;"></span>
-        <span style="color: #1d4ed8;">
-            Progressão: ${progressao} 
-            ${progressao !== '---' ? `<span id="sf-txt-regime" style="font-size: 11px; font-weight: normal; color: #78716c; font-style: italic; margin-left: 4px;">(lendo PDF...)</span>` : ''}
-        </span>
-        <span style="color: #15803d;">Livramento: ${livramento}</span>
-        <span style="color: #b91c1c;">Término: ${termino}</span>
+        <span id="sf-txt-regime" style="font-size: 11px; font-weight: normal; color: #78716c; font-style: italic;"></span>
     `;
     cabecalho.appendChild(infoContainer);
 
-    if (progressao === '---') return;
-
-    let idProcesso = null;
-    const htmlString = document.documentElement.innerHTML;
-    const matches = htmlString.match(/100\d{12}/g);
-    if (matches && matches.length > 0) {
-        const counts = {};
-        let maxId = matches[0];
-        let maxCount = 0;
-        for (let m of matches) {
-            counts[m] = (counts[m] || 0) + 1;
-            if (counts[m] > maxCount) { maxCount = counts[m]; maxId = m; }
-        }
-        idProcesso = maxId;
-    }
-
+    const idProcesso = obterIdProcessoSEEU();
     const spanRegime = document.getElementById('sf-txt-regime');
     if (!spanRegime) return;
 
@@ -1264,6 +1263,7 @@
         const urlRelatorio = '/seeu/processo/criminal/execucao/processoExecucaoPenal.do?actionType=emitirRelatorioSituacaoProcessualExecutoria&report=relatorioSituacaoProcessualExecutoriaV2&idProcessoExecucaoPenal=' + idProcesso;
         
         try {
+            spanRegime.innerText = "(lendo regime...)";
             const resp = await fetch(urlRelatorio, { credentials: 'include' });
             const buf = await resp.arrayBuffer();
 
@@ -1271,15 +1271,12 @@
             const isPdf = String.fromCharCode(...headerBytes).startsWith("%PDF");
 
             if (isPdf && typeof pdfjsLib !== "undefined") {
-                
                 pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL("vendor/pdf.worker.min.js");
                 const doc = await pdfjsLib.getDocument({ data: buf }).promise;
-                
                 const page = await doc.getPage(1);
                 const textContent = await page.getTextContent();
                 
                 const textoMocado = textContent.items.map(it => it.str).join("").replace(/\s+/g, "").toUpperCase();
-                
                 const regimeMatch = textoMocado.match(/REGIMEATUAL:?(FECHADO|SEMIABERTO|ABERTO)/);
                 const spanRegimeAtual = document.getElementById('sf-txt-regime-atual');
                 
@@ -1288,36 +1285,64 @@
                     
                     if (spanRegimeAtual) {
                         spanRegimeAtual.style.display = 'inline-block';
-                        spanRegimeAtual.innerHTML = `<span style="background:#f8fafc; color:#475569; padding:2px 8px; border-radius:4px; border:1px solid #cbd5e1; font-weight:bold; font-size: 12.5px; margin-right: 6px;">Regime atual: ${regimeAtual}</span>`;
+                        spanRegimeAtual.innerHTML = `<span style="background:rgba(255,255,255,0.7); color:#1e293b; padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; font-weight:600; font-size: 12px; margin-right: 4px;">Regime: ${regimeAtual}</span>`;
                     }
 
-                    if (regimeAtual === "FECHADO") {
-                        spanRegime.innerHTML = '<span style="color:#4338ca; background:#e0e7ff; padding:2px 6px; border-radius:4px; margin-left:4px; font-weight:bold;">ao Semiaberto</span>';
-                    } else if (regimeAtual === "SEMIABERTO") {
-                        spanRegime.innerHTML = '<span style="color:#4338ca; background:#e0e7ff; padding:2px 6px; border-radius:4px; margin-left:4px; font-weight:bold;">ao Aberto</span>';
-                    } else {
-                        spanRegime.innerHTML = '<span style="color:#78716c; font-style:italic; font-weight:normal; margin-left:4px;">(Já no Aberto)</span>';
-                    }
+                    spanRegime.innerHTML = '';
                 } else {
-                    spanRegime.innerHTML = '<span style="color:#dc2626; font-style:italic; margin-left:4px;">(Ausente no PDF)</span>';
+                    spanRegime.innerHTML = '<span style="color:#dc2626; font-style:italic;">(Regime ausente no PDF)</span>';
                 }
 
             } else {
-                spanRegime.innerHTML = '<span style="color:#dc2626; font-style:italic; margin-left:4px;">(Relatório não é PDF)</span>';
+                spanRegime.innerHTML = '';
             }
 
         } catch (err) {
-            console.error("[SEEU Flow] Erro ao processar o PDF em background:", err);
-            spanRegime.innerHTML = '<span style="color:#dc2626; font-style:italic; margin-left:4px;">(Erro de leitura)</span>';
+            console.error("[SEEU Flow] Erro ao ler PDF do regime:", err);
+            spanRegime.innerHTML = '';
         }
-
     } else {
-        spanRegime.innerHTML = '<span style="color:#dc2626; font-style:italic; margin-left:4px;">(ID invisível na tela)</span>';
+        spanRegime.innerHTML = '';
     }
   }
 
   /* =========================================================
-     BOTÕES DO CABEÇALHO (PDFs e e-SAJ)
+     MODAL FLUTUANTE DA LINHA DO TEMPO
+     ========================================================= */
+  function abrirModalLinhaTempo(idProcesso) {
+      if (document.getElementById("sf-timeline-overlay")) return;
+
+      const overlay = document.createElement("div");
+      overlay.id = "sf-timeline-overlay";
+      overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2147483647; display:flex; justify-content:center; align-items:center;";
+
+      const box = document.createElement("div");
+      box.style.cssText = "background:#fff; width:92%; max-width:1100px; height:88%; border-radius:10px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,0.6);";
+
+      const header = document.createElement("div");
+      header.style.cssText = "background:#1e293b; color:white; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; font-weight:bold; font-size: 15px; font-family: system-ui, sans-serif;";
+      header.innerHTML = `<span>⏳ Relatório: Linha do Tempo de Prisões</span> <button id="sf-close-timeline" style="background:transparent; color:#94a3b8; border:none; font-size:22px; cursor:pointer; line-height:1; transition: color 0.2s;">✖</button>`;
+
+      const iframe = document.createElement("iframe");
+      iframe.src = `/seeu/processo/criminal/execucao/processoExecucaoPenal.do?actionType=emitirLinhaTempo&report=listaLinhaTempo&idProcessoExecucaoPenal=${idProcesso}&exibirDecreto=true`;
+      iframe.style.cssText = "flex:1; border:none; width:100%; background: #f1f5f9;";
+
+      box.appendChild(header);
+      box.appendChild(iframe);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+
+      const btnClose = document.getElementById("sf-close-timeline");
+      btnClose.onmouseover = () => btnClose.style.color = "#ef4444";
+      btnClose.onmouseout = () => btnClose.style.color = "#94a3b8";
+
+      // Fecha clicando no X ou no fundo escuro
+      btnClose.onclick = () => overlay.remove();
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  }
+
+  /* =========================================================
+     BOTÕES DO CABEÇALHO (PDFs, e-SAJ, DIPOL e Linha do Tempo)
      ========================================================= */
   function injetarBotoesCabecalho() {
       const cabecalho = document.getElementById("barraTituloStatusProcessual");
@@ -1330,17 +1355,17 @@
       if (!document.getElementById("seeu-flow-pdfbtn")) {
           const btnPdf = document.createElement("button");
           btnPdf.id = "seeu-flow-pdfbtn";
-          btnPdf.innerHTML = "📥 Unificar PDFs do Processo";
+          btnPdf.innerHTML = "📥 Unificar PDFs";
           btnPdf.title = "Abre todos os '+', coleta os PDFs pendentes e gera um arquivo único.";
           
           btnPdf.style.position = "static";
-          btnPdf.style.margin = "0 0 0 15px"; 
+          btnPdf.style.margin = "0 0 0 10px"; 
           btnPdf.style.backgroundColor = "#0f172a";
           btnPdf.style.color = "#fff";
           btnPdf.style.border = "none";
-          btnPdf.style.borderRadius = "8px";
-          btnPdf.style.padding = "9px 14px";
-          btnPdf.style.font = "600 13px system-ui, sans-serif";
+          btnPdf.style.borderRadius = "6px";
+          btnPdf.style.padding = "5px 12px";
+          btnPdf.style.font = "600 12px system-ui, sans-serif";
           btnPdf.style.cursor = "pointer";
           
           btnPdf.onclick = (e) => {
@@ -1351,7 +1376,7 @@
               
               autoExpandirEBaixar().finally(() => {
                   setTimeout(() => {
-                      btnPdf.innerHTML = "📥 Unificar PDFs do Processo";
+                      btnPdf.innerHTML = "📥 Unificar PDFs";
                       btnPdf.style.backgroundColor = "#0f172a";
                       btnPdf.style.pointerEvents = "auto";
                   }, 3000);
@@ -1370,32 +1395,24 @@
           
           btnSaj.style.position = "static";
           btnSaj.style.margin = "0 0 0 8px"; 
-          btnSaj.style.backgroundColor = "#0369a1"; // Azul diferente
+          btnSaj.style.backgroundColor = "#0369a1"; 
           btnSaj.style.color = "#fff";
           btnSaj.style.border = "none";
-          btnSaj.style.borderRadius = "8px";
-          btnSaj.style.padding = "9px 14px";
-          btnSaj.style.font = "600 13px system-ui, sans-serif";
+          btnSaj.style.borderRadius = "6px";
+          btnSaj.style.padding = "5px 12px";
+          btnSaj.style.font = "600 12px system-ui, sans-serif";
           btnSaj.style.cursor = "pointer";
           
           btnSaj.onclick = (e) => {
               e.preventDefault();
-              
-              // Extrai o texto visível da página
               const text = document.body.innerText;
-              
-              // Tenta extrair da tela principal: "Sentenciado: NOME AQUI (RJI..."
               let match = text.match(/Sentenciado:\s*([A-ZÀ-Úa-zà-ú\s]+?)\s*(?:\(|RJI|CPF)/i);
-              
-              // Se não achar, tenta extrair da tela de "Parte do Processo"
-              if (!match) {
-                  match = text.match(/Nome:\s*([A-ZÀ-Úa-zà-ú\s]+?)\s*(?:Copiar|Polo)/i);
-              }
+              if (!match) match = text.match(/Nome:\s*([A-ZÀ-Úa-zà-ú\s]+?)\s*(?:Copiar|Polo)/i);
 
               if (match && match[1]) {
                   const nomeStr = match[1].trim();
                   const url = `https://esaj.tjsp.jus.br/cpopg/search.do?conversationId=&cbPesquisa=NMPARTE&chNmCompleto=true&cdForo=-1&dadosConsulta.valorConsulta=${encodeURIComponent(nomeStr)}`;
-                  window.open(url, '_blank'); // Abre em nova guia
+                  window.open(url, '_blank'); 
               } else {
                   alert("SEEU Ultra Flow:\nNão foi possível localizar o nome do sentenciado automaticamente nesta tela.");
               }
@@ -1403,6 +1420,110 @@
 
           containerAlvo.appendChild(btnSaj);
       }
+
+      // 2.5 NOVO: Botão Pesquisa DIPOL
+      if (!document.getElementById("seeu-flow-dipolbtn")) {
+          const btnDipol = document.createElement("button");
+          btnDipol.id = "seeu-flow-dipolbtn";
+          btnDipol.innerHTML = "🚨 Pesquisa DIPOL";
+          btnDipol.title = "Extrai RG, Nome e Nome da Mãe e abre o DIPOL para consulta automática";
+          
+          btnDipol.style.position = "static";
+          btnDipol.style.margin = "0 0 0 8px"; 
+          btnDipol.style.backgroundColor = "#b91c1c"; 
+          btnDipol.style.color = "#fff";
+          btnDipol.style.border = "none";
+          btnDipol.style.borderRadius = "6px";
+          btnDipol.style.padding = "5px 12px";
+          btnDipol.style.font = "600 12px system-ui, sans-serif";
+          btnDipol.style.cursor = "pointer";
+          
+          btnDipol.onclick = (e) => {
+              e.preventDefault();
+              const text = document.body.innerText;
+              
+              let matchNome = text.match(/Sentenciado:\s*([A-ZÀ-Úa-zà-ú\s]+?)\s*(?:\(|RJI|CPF)/i);
+              let nome = matchNome ? matchNome[1].trim() : "";
+
+              let matchMae = text.match(/Nome da Mãe:\s*([A-ZÀ-Úa-zà-ú\s]+?)\s*(?:Copiar|\n|Advogado)/i);
+              let nomeMae = matchMae ? matchMae[1].trim() : "";
+
+              let matchRG = text.match(/RG:\s*([0-9xX\.\-]+)\s*(?:SSP|[A-Z]{2}|\)|\;)/i);
+              let rg = matchRG ? matchRG[1].replace(/\D/g, '') : "";
+
+              if (nome || rg) {
+                  chrome.storage.local.set({
+                      dipol_data: { nome: nome, mae: nomeMae, rg: rg, timestamp: Date.now() }
+                  }, () => {
+                      const urlDipol = "https://apps.powerapps.com/play/e/98c9177a-56c9-4700-b399-91d21c88f93b/a/880c8aa3-24b7-4306-bea8-54709d6c4528?tenantId=3590422d-8e59-4036-9245-d6edd8cc0f7a";
+                      window.open(urlDipol, '_blank');
+                  });
+              } else {
+                  alert("SEEU Ultra Flow:\nNão foi possível localizar os dados necessários (Nome, Mãe, RG) na tela.");
+              }
+          };
+
+          containerAlvo.appendChild(btnDipol);
+      }
+
+      // 3. NOVO: Botão Linha do Tempo
+      if (!document.getElementById("seeu-flow-timelinebtn")) {
+          const btnTime = document.createElement("button");
+          btnTime.id = "seeu-flow-timelinebtn";
+          btnTime.innerHTML = "⏳ Linha do Tempo";
+          btnTime.title = "Abre o relatório de Linha do Tempo das Prisões";
+          
+          btnTime.style.position = "static";
+          btnTime.style.margin = "0 0 0 8px"; 
+          btnTime.style.backgroundColor = "#7c3aed"; // Roxo escuro para destacar
+          btnTime.style.color = "#fff";
+          btnTime.style.border = "none";
+          btnTime.style.borderRadius = "6px";
+          btnTime.style.padding = "5px 12px";
+          btnTime.style.font = "600 12px system-ui, sans-serif";
+          btnTime.style.cursor = "pointer";
+          
+          btnTime.onclick = (e) => {
+              e.preventDefault();
+              const idProc = obterIdProcessoSEEU();
+              if (!idProc) {
+                  alert("SEEU Ultra Flow:\nNão foi possível localizar o ID interno deste processo para gerar a linha do tempo.");
+                  return;
+              }
+              abrirModalLinhaTempo(idProc);
+          };
+
+          containerAlvo.appendChild(btnTime);
+      }
+  }
+
+  // --- NOVA FUNÇÃO DE BLINDAGEM CONTRA LOGOFF ---
+  function blindarAtualizacao() {
+      // 1. Bloqueia F5 e Ctrl+R / Cmd+R
+      window.addEventListener('keydown', function(e) {
+          const isF5 = e.key === 'F5' || e.keyCode === 116;
+          const isCtrlR = (e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R');
+
+          if (isF5 || isCtrlR) {
+              e.preventDefault(); // Mata o comando de atualização
+              
+              // Exibe um alerta visual vermelho na tela
+              if (!document.getElementById("alerta-logoff-seeu")) {
+                  const alerta = document.createElement("div");
+                  alerta.id = "alerta-logoff-seeu";
+                  alerta.innerHTML = "⚠️ <b>AÇÃO BLOQUEADA</b><br>Atualizar a página fará o SEEU deslogar (Erro de Sessão).<br><small style='font-weight:normal; margin-top:5px; display:block;'>Use os botões de voltar do próprio sistema para navegar.</small>";
+                  alerta.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#dc2626; color:white; padding:15px 25px; border-radius:8px; z-index:2147483647; font-weight:bold; font-size: 14px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); font-family:system-ui, sans-serif; pointer-events: none;";
+                  document.body.appendChild(alerta);
+                  
+                  // Apaga o alerta depois de 4 segundos
+                  setTimeout(() => {
+                      alerta.style.opacity = "0";
+                      alerta.style.transition = "opacity 0.5s ease";
+                      setTimeout(() => alerta.remove(), 500);
+                  }, 4000);
+              }
+          }
+      });
   }
 
   let pendente = false;
@@ -1457,6 +1578,9 @@
         return;
     }
     
+    // ATIVA A BLINDAGEM ANTI-LOGOFF ASSIM QUE A EXTENSÃO INICIA
+    blindarAtualizacao();
+
     setTimeout(fixarCabecalhoProcesso, 800);
     
     rodar();
