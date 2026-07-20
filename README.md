@@ -38,8 +38,6 @@ Esta extensão roda **100% no seu navegador (Client-side)**. Nenhuma informaçã
 
 ######################### ATUALIZAÇÃO 17/07/2026 #################################
 
-
-
 ## 🆕 Novas Integrações (Pesquisas Automáticas)
 
 A extensão agora conecta o SEEU a plataformas de consulta externa, eliminando a necessidade de copiar e colar dados manualmente entre abas.
@@ -48,8 +46,7 @@ A extensão agora conecta o SEEU a plataformas de consulta externa, eliminando a
 - **🚨 Integração DIPOL (Power Apps):** O botão "Pesquisa DIPOL" lê os dados do apenado (RG, Nome e Nome da Mãe), abre a interface do Microsoft Power Apps da DIPOL, quebra os bloqueios de segurança do sistema da Microsoft, preenche os campos automaticamente e realiza a consulta de antecedentes criminais em segundos.
 
 
-######################### ATUALIZAÇÃO 17/07/2026 #################################
+######################### ATUALIZAÇÃO 20/07/2026 #################################
 
-
-## PAINEL CONGELADO COMPACTO;
-## BOTÃO F5 SEM AÇÃO NO SITE, EVITANDO O LOGOFF DA PÁGINA;
+## O Painel fixo da tela do processo ficou mais compacto, liberando mais espaço na tela;
+## A tecla F5 deixou de funcionar no site, para evitar logoffs;
