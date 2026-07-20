@@ -46,3 +46,10 @@ A extensão agora conecta o SEEU a plataformas de consulta externa, eliminando a
 
 - **🔍 Pesquisa e-SAJ Automática:** Um botão injetado no cabeçalho do processo extrai inteligentemente o nome do sentenciado da tela do SEEU e já abre a consulta de 1º Grau no **e-SAJ (TJSP)** preenchida e pesquisada.
 - **🚨 Integração DIPOL (Power Apps):** O botão "Pesquisa DIPOL" lê os dados do apenado (RG, Nome e Nome da Mãe), abre a interface do Microsoft Power Apps da DIPOL, quebra os bloqueios de segurança do sistema da Microsoft, preenche os campos automaticamente e realiza a consulta de antecedentes criminais em segundos.
+
+
+######################### ATUALIZAÇÃO 17/07/2026 #################################
+
+
+## PAINEL CONGELADO COMPACTO;
+## BOTÃO F5 SEM AÇÃO NO SITE, EVITANDO O LOGOFF DA PÁGINA;
